@@ -2,7 +2,7 @@ package de.yodarian;
 
 import java.io.IOException;
 
-import de.yodarian.professions.RoleAssignment;
+import de.yodarian.professions.ProfessionsCommand;
 import de.yodarian.util.Helper;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -22,7 +22,6 @@ public class App
         try {
             BOT_TOKEN = Helper.getBotToken();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
@@ -40,7 +39,7 @@ public class App
                     .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.DIRECT_MESSAGE_TYPING);
 
             // Events
-            blueprint.addEventListeners(new RoleAssignment());
+            blueprint.addEventListeners(new ProfessionsCommand());
 
             JDA bot = blueprint.build();
         }
