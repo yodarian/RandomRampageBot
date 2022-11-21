@@ -126,7 +126,7 @@ public class CommandManager extends ListenerAdapter
         blueprint.setColor(0xa8d5fe)
                  .setTitle("**:construction_worker: | Choose your professions!**")
                  .setDescription("Click the menu below to choose your professions")
-                 .setThumbnail("https://cdn.discordapp.com/attachments/1042136257238667274/1043507733971865640/prof.jpg")
+                 .setThumbnail("https://cdn.discordapp.com/attachments/1040718388802105474/1044334114238648452/prof.jpg")
                  .setImage("https://cdn.discordapp.com/attachments/994209663316918382/994210394736447548/unknown.png");
 
         return blueprint.build();
