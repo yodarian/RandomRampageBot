@@ -1,6 +1,7 @@
 package de.yodarian;
 
 import de.yodarian.commands.CommandManager;
+import de.yodarian.listeners.ProfessionsListener;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
@@ -28,7 +29,7 @@ public class RandomRampageBot
                 .setActivity(Activity.playing("World of Warcraft"));
         
         // Permissions and Cacheing
-        // @Todo What do I really need?
+        // @Todo What do I really need for the bot to function properly?
         /* blueprint.setChunkingFilter(ChunkingFilter.ALL)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .enableIntents(
@@ -42,7 +43,8 @@ public class RandomRampageBot
  */
         // Add Events
         blueprint.addEventListeners(
-            new CommandManager()
+            new CommandManager(),
+            new ProfessionsListener()
         );
 
         shardManager = blueprint.build();

@@ -1,28 +1,22 @@
 package de.yodarian.commands;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.jetbrains.annotations.NotNull;
 
 import de.yodarian.config.ProfessionsConfig;
+import de.yodarian.setup.ProfessionsSetup;
 import de.yodarian.util.Helper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.channel.concrete.Category;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -31,11 +25,10 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
-import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 
 public class CommandManager extends ListenerAdapter
 {
-    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) 
+    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) 
     {
         if (event.getGuild() == null)
             return;
@@ -55,7 +48,7 @@ public class CommandManager extends ListenerAdapter
         }
     }
 
-    private void handleSetupCommand(SlashCommandInteractionEvent event) 
+    private void handleSetupCommand(@NotNull SlashCommandInteractionEvent event) 
     {
         if (!event.getMember().hasPermission(Permission.ADMINISTRATOR)) 
         {
@@ -72,12 +65,12 @@ public class CommandManager extends ListenerAdapter
         switch (step) 
         {
             case "category-roles":
-                setupCategory(guild, categoryName);
-                setupRoles(guild, professions);
+                ProfessionsSetup.setupProfessionCategory(guild, categoryName);
+                ProfessionsSetup.setupProfessionRoles(guild, professions);
                 event.reply("Category and Roles was setup successfully. Please run the command again to add Channels").setEphemeral(true).queue();
                 break;
             case "channels":
-                setupChannels(guild, professions, categoryName);
+                ProfessionsSetup.setupProfessionChannels(guild, professions, categoryName);
                 event.reply("Channels were setup successfully").setEphemeral(true).queue();
                 break;
             default:
@@ -85,64 +78,7 @@ public class CommandManager extends ListenerAdapter
         }
     }
 
-    private void setupChannels(Guild guild, String[] professions, String categoryName) 
-    {
-        List<Category> categories = guild.getCategoriesByName(categoryName, false);
-        if (!categories.isEmpty()) 
-        {
-            Category professionCategory = categories.get(0);                    
-            EnumSet<Permission> permissions = EnumSet.of(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND);
-
-            List<TextChannel> channels = guild.getTextChannelsByName("professions", true);
-            if (channels.isEmpty()) {
-                professionCategory.createTextChannel("professions").queue();
-            }
-
-            for (int i = 0; i < professions.length; i++) 
-            {
-                List<TextChannel> textChannels = guild.getTextChannelsByName(professions[i], true);
-                if (!textChannels.isEmpty()) {
-                    //@Todo check if the channel is the correct one (in category Professions)
-                    System.out.println("Channel **" + professions[i] + "** already setup");
-                    //@Todo make sure permissions are set correctly...
-                } else {
-                    //@Todo check if this is the correct role
-                    List<Role> roles = guild.getRolesByName(professions[i], false);
-                    if (!roles.isEmpty()) {
-                        Role role = roles.get(0);
-                        ChannelAction<TextChannel> manager = professionCategory.createTextChannel(professions[i])
-                            .addPermissionOverride(role, permissions, null)
-                            .addPermissionOverride(guild.getPublicRole(), null, permissions);
-                        manager.queue();
-                    } else {
-                        System.out.println("Role missing for channel **" + professions[i] + "**");
-                    }
-                }
-            }
-        }
-    }
-
-    private void setupCategory(Guild guild, String categoryName)
-    {
-        List<Category> categories = guild.getCategoriesByName(categoryName, false);
-        if (categories.isEmpty()) 
-        {
-            guild.createCategory(categoryName).queue();
-        }
-    }
-
-    private void setupRoles(Guild guild, String[] professions) 
-    {
-        for (int i = 0; i < professions.length; i++) 
-        {
-            List<Role> roles = guild.getRolesByName(professions[i], false);
-            if (roles.isEmpty()) {
-                guild.createRole().setName(professions[i]).setPermissions(Permission.VIEW_CHANNEL).setMentionable(true).queue();
-            }
-        }
-    }
-
-    private void handleProfessionsCommand(SlashCommandInteractionEvent event) 
+    private void handleProfessionsCommand(@NotNull SlashCommandInteractionEvent event) 
     {
         MessageEmbed msgembed = getProfessionChooseEmbed();
         StringSelectMenu menu = getProfessionSelectMenu(event.getJDA());
@@ -164,35 +100,7 @@ public class CommandManager extends ListenerAdapter
         addCommandsToGuild(event.getGuild());
     }
 
-    public void onStringSelectInteraction(StringSelectInteractionEvent event) 
-    {
-        if (event.getSelectMenu().getId().equals("menu:professions"))
-        {
-            Role role = null;
-            Guild guild = event.getGuild();
-
-            Map<String, String> roleConfigMap = this.getRoleConfigMap(event.getGuild());
-            Map<String, String> notUsedRoles = Helper.getCopyOfMap(roleConfigMap);
-            
-            for (String s : event.getValues())
-            {
-                role = guild.getRoleById(roleConfigMap.get(s));
-                guild.addRoleToMember(event.getUser(), role).queue();
-                notUsedRoles.remove(s);
-            }
-
-            //System.out.println(notUsedRoles.toString());
-            for(Map.Entry<String, String> entry : notUsedRoles.entrySet())
-            {
-                role = guild.getRoleById(roleConfigMap.get(entry.getKey()));
-                guild.removeRoleFromMember(event.getUser(), role).queue();
-            }
-
-            event.reply("Your Professions were updated successfully!").setEphemeral(true).queue();
-        }
-    }
-
-    private StringSelectMenu getProfessionSelectMenu(JDA jda) 
+    private StringSelectMenu getProfessionSelectMenu(@NotNull JDA jda) 
     {
         String professions[] = ProfessionsConfig.getProfessions();
         Map<String, String> emojiMap = ProfessionsConfig.getEmojiMap();
@@ -222,26 +130,6 @@ public class CommandManager extends ListenerAdapter
                  .setImage("https://cdn.discordapp.com/attachments/994209663316918382/994210394736447548/unknown.png");
 
         return blueprint.build();
-    }
-
-    private Map<String, String> getRoleConfigMap(@NotNull Guild guild)
-    {
-        Map<String, String> roleConfigMap = new HashMap<String, String>();
-        String professions[] = ProfessionsConfig.getProfessions();
-    
-        for (int i = 0; i < professions.length; i++)
-        {
-            List<Role> roleList = guild.getRolesByName(professions[i], false);
-            if (roleList.size() > 0)
-            {
-                String id = roleList.get(0).getId();
-                roleConfigMap.put(professions[i], id);
-            } else {
-                System.out.println("Rolle **" + professions[i] + "** not found!");
-            }
-        }
-
-        return roleConfigMap;
     }
 
     private void addCommandsToGuild(@NotNull Guild guild)

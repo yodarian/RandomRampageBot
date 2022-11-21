@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class ProfessionsConfig 
 {
+    //@Todo use List or something else?
     public static String professions[] = {
         "herbalism", 
         "mining", 
