@@ -39,7 +39,9 @@ public class App
                     .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.DIRECT_MESSAGE_TYPING);
 
             // Events
-            blueprint.addEventListeners(new ProfessionsCommand());
+            blueprint.addEventListeners(
+                new ProfessionsCommand()
+            );
 
             JDA bot = blueprint.build();
         }
