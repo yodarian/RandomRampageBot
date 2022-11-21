@@ -31,7 +31,6 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
-import net.dv8tion.jda.api.requests.restaction.RoleAction;
 
 public class ProfessionsCommand extends ListenerAdapter
 {
@@ -57,31 +56,31 @@ public class ProfessionsCommand extends ListenerAdapter
 
     private void handleSetupCommand(SlashCommandInteractionEvent event) 
     {
-        if (event.getMember().hasPermission(Permission.ADMINISTRATOR)) 
+        if (!event.getMember().hasPermission(Permission.ADMINISTRATOR)) 
         {
-            OptionMapping option = event.getOption("step");
-            String step = option.getAsString();
-            Guild guild = event.getGuild();
-            String[] professions = Config.getProfessions();
-            String categoryName = "Professions";
-            
-
-            switch (step) 
-            {
-                case "category-roles":
-                    setupCategory(guild, categoryName);
-                    setupRoles(guild, professions);
-                    event.reply("Category and Roles was setup successfully. Please run the command again to add Channels").setEphemeral(true).queue();
-                    break;
-                case "channels":
-                    setupChannels(guild, professions, categoryName);
-                    event.reply("Channels were setup successfully").setEphemeral(true).queue();
-                    break;
-                default:
-                    event.reply("I can't handle that option right now :(").setEphemeral(true).queue();
-            }
-        } else {
             event.reply("You need to be an admin to use this command").setEphemeral(true).queue();
+            return;
+        }
+
+        OptionMapping option = event.getOption("step");
+        String step = option.getAsString();
+        Guild guild = event.getGuild();
+        String[] professions = Config.getProfessions();
+        String categoryName = "Professions";
+
+        switch (step) 
+        {
+            case "category-roles":
+                setupCategory(guild, categoryName);
+                setupRoles(guild, professions);
+                event.reply("Category and Roles was setup successfully. Please run the command again to add Channels").setEphemeral(true).queue();
+                break;
+            case "channels":
+                setupChannels(guild, professions, categoryName);
+                event.reply("Channels were setup successfully").setEphemeral(true).queue();
+                break;
+            default:
+                event.reply("I can't handle that option right now :(").setEphemeral(true).queue();
         }
     }
 

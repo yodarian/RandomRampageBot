@@ -28,13 +28,4 @@ public class Helper
         copy.putAll(map);
         return copy;
     }
-
-    public static String getBotToken() throws IOException
-    {
-        String workingDir = System.getProperty("user.dir");
-        Path filePath = Paths.get(workingDir + File.separator + "random-rampage-bot/src/main/java/de/yodarian/config/dc.token");
-
-        return Files.readString(filePath);
-    }
-    
 }
