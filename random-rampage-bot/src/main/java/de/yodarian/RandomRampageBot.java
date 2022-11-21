@@ -1,6 +1,6 @@
 package de.yodarian;
 
-import de.yodarian.professions.ProfessionsCommand;
+import de.yodarian.commands.CommandManager;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
@@ -23,18 +23,26 @@ public class RandomRampageBot
 
         DefaultShardManagerBuilder blueprint = DefaultShardManagerBuilder.createDefault(token);
 
-        // Basics
+        // Basic Settings
         blueprint.setStatus(OnlineStatus.ONLINE)
                 .setActivity(Activity.playing("World of Warcraft"));
         
-        // Permissions
-        blueprint.setChunkingFilter(ChunkingFilter.ALL)
+        // Permissions and Cacheing
+        // @Todo What do I really need?
+        /* blueprint.setChunkingFilter(ChunkingFilter.ALL)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
-                .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.DIRECT_MESSAGE_TYPING);
-
-        // Events
+                .enableIntents(
+                    GatewayIntent.GUILD_MEMBERS, 
+                    GatewayIntent.MESSAGE_CONTENT, 
+                    GatewayIntent.GUILD_MESSAGES, 
+                    GatewayIntent.GUILD_PRESENCES, 
+                    GatewayIntent.GUILD_VOICE_STATES, 
+                    GatewayIntent.DIRECT_MESSAGE_TYPING
+                );
+ */
+        // Add Events
         blueprint.addEventListeners(
-            new ProfessionsCommand()
+            new CommandManager()
         );
 
         shardManager = blueprint.build();

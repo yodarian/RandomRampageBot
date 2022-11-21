@@ -1,4 +1,4 @@
-package de.yodarian.professions;
+package de.yodarian.commands;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.jetbrains.annotations.NotNull;
 
+import de.yodarian.config.ProfessionsConfig;
 import de.yodarian.util.Helper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -32,7 +33,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 
-public class ProfessionsCommand extends ListenerAdapter
+public class CommandManager extends ListenerAdapter
 {
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) 
     {
@@ -65,7 +66,7 @@ public class ProfessionsCommand extends ListenerAdapter
         OptionMapping option = event.getOption("step");
         String step = option.getAsString();
         Guild guild = event.getGuild();
-        String[] professions = Config.getProfessions();
+        String[] professions = ProfessionsConfig.getProfessions();
         String categoryName = "Professions";
 
         switch (step) 
@@ -193,8 +194,8 @@ public class ProfessionsCommand extends ListenerAdapter
 
     private StringSelectMenu getProfessionSelectMenu(JDA jda) 
     {
-        String professions[] = Config.getProfessions();
-        Map<String, String> emojiMap = Config.getEmojiMap();
+        String professions[] = ProfessionsConfig.getProfessions();
+        Map<String, String> emojiMap = ProfessionsConfig.getEmojiMap();
 
         String description = "Click to choose this profession!";
 
@@ -226,7 +227,7 @@ public class ProfessionsCommand extends ListenerAdapter
     private Map<String, String> getRoleConfigMap(@NotNull Guild guild)
     {
         Map<String, String> roleConfigMap = new HashMap<String, String>();
-        String professions[] = Config.getProfessions();
+        String professions[] = ProfessionsConfig.getProfessions();
     
         for (int i = 0; i < professions.length; i++)
         {

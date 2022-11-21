@@ -1,9 +1,9 @@
-package de.yodarian.professions;
+package de.yodarian.config;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class Config 
+public class ProfessionsConfig 
 {
     public static String professions[] = {
         "herbalism", 
