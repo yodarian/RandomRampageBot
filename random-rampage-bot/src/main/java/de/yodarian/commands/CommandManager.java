@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
@@ -66,7 +67,7 @@ public class CommandManager extends ListenerAdapter
         blueprint.setColor(0xa8d5fe)
                  .setTitle("**New M+ Event created by " + member.getEffectiveName() + "**")
                  .setThumbnail("https://cdn.discordapp.com/attachments/1040718388802105474/1044369536285147286/Mplus.PNG")
-                 .setDescription(type + " on " + date + " at " + time)
+                 .setDescription(type + "\n" + date + " at " + time)
                  .addBlankField(false)
                  .addField("<:tank:1044364540453867601> Tank", "", true)
                  .addField("<:heal:1044364577921568828> Heal", "", true)
@@ -77,11 +78,23 @@ public class CommandManager extends ListenerAdapter
         Button tankButton = Button.secondary("tank", "Tank").withEmoji(Emoji.fromFormatted("<:tank:1044364540453867601>"));
         Button healButton = Button.secondary("heal", "Heal").withEmoji(Emoji.fromFormatted("<:heal:1044364577921568828>"));
         Button damageButton = Button.secondary("damage", "Damage").withEmoji(Emoji.fromFormatted("<:damage:1044364596649144452>"));
-
-        event.reply("")
-            .addEmbeds(blueprint.build())
-            .addActionRow(tankButton, healButton, damageButton)
-            .queue();
+        
+        List<TextChannel> channels = event.getGuild().getTextChannelsByName("📧m-plus-verabredungen", false);
+        if (!channels.isEmpty())
+        {
+            TextChannel mplusChannel = channels.get(0);
+            mplusChannel.sendMessage("").addEmbeds(blueprint.build()).addActionRow(tankButton, healButton, damageButton).queue();
+        } 
+        else 
+        {
+            event.reply("")
+                .addEmbeds(blueprint.build())
+                .addActionRow(tankButton, healButton, damageButton)
+                .queue();
+        }
+        
+        event.reply("M+ event was created").setEphemeral(true).queue();
+        
     }
 
     private void handleSetupCommand(@NotNull SlashCommandInteractionEvent event) 

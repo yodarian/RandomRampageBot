@@ -20,6 +20,7 @@ public class MplusListener extends ListenerAdapter
         String tank = "";
         String heal = "";
         String damage = "";
+        boolean memberAlreadyAssigned = false;
 
         for (Field field : fields) 
         {
@@ -43,29 +44,61 @@ public class MplusListener extends ListenerAdapter
 
         if (event.getButton().getId().startsWith("tank")) 
         {
-            tank += ":white_check_mark:" + event.getMember().getEffectiveName() + "\n";
+            if (tank.length() > 1)
+            {
+                if (tank.contains(event.getMember().getEffectiveName()))
+                {
+                    memberAlreadyAssigned = true;
+                }
+                tank += "\n";
+            } 
+            tank += "<:green_check_mark:1044559541037183016>" + event.getMember().getEffectiveName();
         } 
         else if (event.getButton().getId().startsWith("heal")) 
         {
-            heal += ":white_check_mark:" + event.getMember().getEffectiveName() + "\n";
+            if (heal.length() > 1)
+            {
+                if (heal.contains(event.getMember().getEffectiveName()))
+                {
+                    memberAlreadyAssigned = true;
+                }
+                heal += "\n";
+            }
+            heal += "<:green_check_mark:1044559541037183016>" + event.getMember().getEffectiveName();
         }
         else if (event.getButton().getId().startsWith("damage"))  
         {
-            damage += ":white_check_mark:" + event.getMember().getEffectiveName() + "\n";
+            if (damage.length() > 1)
+            {
+                if (damage.contains(event.getMember().getEffectiveName()))
+                {
+                    memberAlreadyAssigned = true;
+                }
+                damage += "\n";
+            }
+            damage += "<:green_check_mark:1044559541037183016>" + event.getMember().getEffectiveName();
         }
 
-        EmbedBuilder blueprint = new EmbedBuilder();
-            blueprint.setColor(0xa8d5fe)
-                 .setTitle(embed.getTitle())
-                 .setThumbnail("https://cdn.discordapp.com/attachments/1040718388802105474/1044369536285147286/Mplus.PNG")
-                 .setDescription(embed.getDescription())
-                 .addBlankField(false)
-                 .addField("<:tank:1044364540453867601> Tank", tank, true)
-                 .addField("<:heal:1044364577921568828> Heal", heal, true)
-                 .addField("<:damage:1044364596649144452> Damage", damage, true)
-                 .addBlankField(false)
-                 .addField("Special requests and notes", note, false);
-            
+        if (!memberAlreadyAssigned)
+        {
+            EmbedBuilder blueprint = new EmbedBuilder();
+                blueprint.setColor(0xa8d5fe)
+                    .setTitle(embed.getTitle())
+                    .setThumbnail("https://cdn.discordapp.com/attachments/1040718388802105474/1044369536285147286/Mplus.PNG")
+                    .setDescription(embed.getDescription())
+                    .addBlankField(false)
+                    .addField("<:tank:1044364540453867601> Tank", tank, true)
+                    .addField("<:heal:1044364577921568828> Heal", heal, true)
+                    .addField("<:damage:1044364596649144452> Damage", damage, true)
+                    .addBlankField(false)
+                    .addField("Special requests and notes", note, false);
+                
             event.editMessageEmbeds(blueprint.build()).queue();
+        } 
+        else
+        {
+            event.reply("You are already assigned to this event").setEphemeral(true).queue();
+        }
+
     }
 }
