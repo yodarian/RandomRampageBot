@@ -1,6 +1,7 @@
 package de.yodarian;
 
 import de.yodarian.commands.CommandManager;
+import de.yodarian.listeners.MplusListener;
 import de.yodarian.listeners.ProfessionsListener;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -39,12 +40,13 @@ public class RandomRampageBot
                     GatewayIntent.GUILD_PRESENCES, 
                     GatewayIntent.GUILD_VOICE_STATES, 
                     GatewayIntent.DIRECT_MESSAGE_TYPING
-                );
- */
+                ); */
+
         // Add Events
         blueprint.addEventListeners(
             new CommandManager(),
-            new ProfessionsListener()
+            new ProfessionsListener(),
+            new MplusListener()
         );
 
         shardManager = blueprint.build();
