@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import de.yodarian.config.ProfessionsConfig;
 import de.yodarian.setup.ProfessionsSetup;
 import de.yodarian.util.Helper;
+import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
@@ -57,6 +58,34 @@ public class CommandManager extends ListenerAdapter
 
     private void handleMplusCommand(@NotNull SlashCommandInteractionEvent event)
     {
+        MessageEmbed mplusEmbed = getMplusEmbed(event);
+
+        Button tankButton = Button.secondary("tank", "Tank").withEmoji(Emoji.fromFormatted("<:tank:1044364540453867601>"));
+        Button healButton = Button.secondary("heal", "Heal").withEmoji(Emoji.fromFormatted("<:heal:1044364577921568828>"));
+        Button damageButton = Button.secondary("damage", "Damage").withEmoji(Emoji.fromFormatted("<:damage:1044364596649144452>"));
+        
+        Dotenv config = Dotenv.configure().directory("random-rampage-bot").load();
+        String mplusChannelName = config.get("MPLUS_CHANNEL");
+        List<TextChannel> channels = event.getGuild().getTextChannelsByName(mplusChannelName, false);
+        if (!channels.isEmpty())
+        {
+            TextChannel mplusChannel = channels.get(0);
+            mplusChannel.sendMessage("").addEmbeds(mplusEmbed).addActionRow(tankButton, healButton, damageButton).queue();
+        } 
+        else 
+        {
+            event.reply("")
+                .addEmbeds(mplusEmbed)
+                .addActionRow(tankButton, healButton, damageButton)
+                .queue();
+        }
+        
+        event.reply("M+ event was created").setEphemeral(true).queue();
+        
+    }
+
+    private MessageEmbed getMplusEmbed(SlashCommandInteractionEvent event) 
+    {
         String type = event.getOption("type").getAsString();
         String date = event.getOption("date").getAsString();
         String time = event.getOption("time").getAsString();
@@ -67,34 +96,15 @@ public class CommandManager extends ListenerAdapter
         blueprint.setColor(0xa8d5fe)
                  .setTitle("**New M+ Event created by " + member.getEffectiveName() + "**")
                  .setThumbnail("https://cdn.discordapp.com/attachments/1040718388802105474/1044369536285147286/Mplus.PNG")
-                 .setDescription(type + "\n" + date + " at " + time)
+                 .setDescription(type.toUpperCase() + "\n" + date + " at " + time)
                  .addBlankField(false)
                  .addField("<:tank:1044364540453867601> Tank", "", true)
                  .addField("<:heal:1044364577921568828> Heal", "", true)
                  .addField("<:damage:1044364596649144452> Damage", "", true)
                  .addBlankField(false)
                  .addField("Special requests and notes", note, false);
-
-        Button tankButton = Button.secondary("tank", "Tank").withEmoji(Emoji.fromFormatted("<:tank:1044364540453867601>"));
-        Button healButton = Button.secondary("heal", "Heal").withEmoji(Emoji.fromFormatted("<:heal:1044364577921568828>"));
-        Button damageButton = Button.secondary("damage", "Damage").withEmoji(Emoji.fromFormatted("<:damage:1044364596649144452>"));
-        
-        List<TextChannel> channels = event.getGuild().getTextChannelsByName("📧m-plus-verabredungen", false);
-        if (!channels.isEmpty())
-        {
-            TextChannel mplusChannel = channels.get(0);
-            mplusChannel.sendMessage("").addEmbeds(blueprint.build()).addActionRow(tankButton, healButton, damageButton).queue();
-        } 
-        else 
-        {
-            event.reply("")
-                .addEmbeds(blueprint.build())
-                .addActionRow(tankButton, healButton, damageButton)
-                .queue();
-        }
-        
-        event.reply("M+ event was created").setEphemeral(true).queue();
-        
+                 
+        return blueprint.build();
     }
 
     private void handleSetupCommand(@NotNull SlashCommandInteractionEvent event) 
@@ -205,9 +215,9 @@ public class CommandManager extends ListenerAdapter
                     .addChoice("Weekly Keys", "weekly-keys")
                     .addChoice("Pushing Keys", "pushing-keys")
                     .setRequired(true),
-                new OptionData(OptionType.STRING, "date", "The date of the M+ event in the format YYYY-MM-DD")
+                new OptionData(OptionType.STRING, "date", "The date of the M+ event in the format DD-MM")
                     .setRequired(true),
-                new OptionData(OptionType.STRING, "time", "The time of the M+ event in the format HH:MM")
+                new OptionData(OptionType.STRING, "time", "The time of the M+ event in the format HH:mm")
                     .setRequired(true),
                 new OptionData(OptionType.STRING, "note", "Special request and notes for this event")
                     .setRequired(false)
