@@ -64,6 +64,7 @@ public class CommandManager extends ListenerAdapter
         Button healButton = Button.secondary("heal", "Heal").withEmoji(Emoji.fromFormatted("<:heal:1044364577921568828>"));
         Button damageButton = Button.secondary("damage", "Damage").withEmoji(Emoji.fromFormatted("<:damage:1044364596649144452>"));
         
+        //@Todo since it's configurable maybe use Id?
         Dotenv config = Dotenv.configure().directory("random-rampage-bot").load();
         String mplusChannelName = config.get("MPLUS_CHANNEL");
         List<TextChannel> channels = event.getGuild().getTextChannelsByName(mplusChannelName, false);
@@ -103,7 +104,7 @@ public class CommandManager extends ListenerAdapter
                  .addField("<:damage:1044364596649144452> Damage", "", true)
                  .addBlankField(false)
                  .addField("Special requests and notes", note, false);
-                 
+
         return blueprint.build();
     }
 

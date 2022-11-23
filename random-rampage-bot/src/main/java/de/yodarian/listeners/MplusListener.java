@@ -1,6 +1,8 @@
 package de.yodarian.listeners;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -12,93 +14,101 @@ public class MplusListener extends ListenerAdapter
 {
     public void onButtonInteraction(ButtonInteractionEvent event) 
     {
-        List<MessageEmbed> msgEmbeds = event.getMessage().getEmbeds();
-        MessageEmbed embed = msgEmbeds.get(0);
+        String buttonId = event.getButton().getId();
 
-        List<Field> fields = embed.getFields();
-        String note = "";
-        String tank = "";
-        String heal = "";
-        String damage = "";
-        boolean memberAlreadyAssigned = false;
+        if (buttonId.startsWith("tank") || buttonId.startsWith("heal") || buttonId.startsWith("damage"))
+        {
+            List<MessageEmbed> msgEmbeds = event.getMessage().getEmbeds();
+            MessageEmbed embed = msgEmbeds.get(0);
+            
+            String memberName = event.getMember().getEffectiveName();
+            boolean memberAlreadyAssigned = false;
+
+            Map<String, String> embedFieldValuesMap = getFieldValuesMap(embed.getFields());
+
+            if (buttonId.startsWith("tank")) 
+            {
+                if (embedFieldValuesMap.get("tank").length() > 1)
+                {
+                    if (embedFieldValuesMap.get("tank").contains(memberName))
+                    {
+                        memberAlreadyAssigned = true;
+                    }
+                    embedFieldValuesMap.put("tank", embedFieldValuesMap.get("tank") + "\n");
+                } 
+                embedFieldValuesMap.put("tank", embedFieldValuesMap.get("tank") + "<:green_check_mark:1044559541037183016>" + memberName);
+            } 
+            else if (buttonId.startsWith("heal")) 
+            {
+                if (embedFieldValuesMap.get("heal").length() > 1)
+                {
+                    if (embedFieldValuesMap.get("heal").contains(memberName))
+                    {
+                        memberAlreadyAssigned = true;
+                    }
+                    embedFieldValuesMap.put("heal", embedFieldValuesMap.get("heal") + "\n");
+                }
+                embedFieldValuesMap.put("heal", embedFieldValuesMap.get("heal") + "<:green_check_mark:1044559541037183016>" + memberName);
+            }
+            else if (buttonId.startsWith("damage"))  
+            {
+                if (embedFieldValuesMap.get("damage").length() > 1)
+                {
+                    if (embedFieldValuesMap.get("damage").contains(memberName))
+                    {
+                        memberAlreadyAssigned = true;
+                    }
+                    embedFieldValuesMap.put("damage", embedFieldValuesMap.get("heal") + "\n");
+                }
+                embedFieldValuesMap.put("damage", embedFieldValuesMap.get("damage") + "<:green_check_mark:1044559541037183016>" + memberName);
+            }
+
+            if (!memberAlreadyAssigned)
+            {
+                EmbedBuilder blueprint = new EmbedBuilder();
+                    blueprint.setColor(0xa8d5fe)
+                        .setTitle(embed.getTitle())
+                        .setThumbnail("https://cdn.discordapp.com/attachments/1040718388802105474/1044369536285147286/Mplus.PNG")
+                        .setDescription(embed.getDescription())
+                        .addBlankField(false)
+                        .addField("<:tank:1044364540453867601> Tank", embedFieldValuesMap.get("tank"), true)
+                        .addField("<:heal:1044364577921568828> Heal", embedFieldValuesMap.get("heal"), true)
+                        .addField("<:damage:1044364596649144452> Damage", embedFieldValuesMap.get("damage"), true)
+                        .addBlankField(false)
+                        .addField("Special requests and notes", embedFieldValuesMap.get("note"), false);
+                    
+                event.editMessageEmbeds(blueprint.build()).queue();
+            } 
+            else
+            {
+                event.reply("You are already assigned to this event with that role").setEphemeral(true).queue();
+            }
+        }
+    }
+
+    private Map<String, String> getFieldValuesMap(List<Field> fields) 
+    {
+        Map<String, String> embedFieldValuesMap = new HashMap<String, String>();
 
         for (Field field : fields) 
         {
             if (field.getName().contains("note"))
             {
-                note = field.getValue();
+                embedFieldValuesMap.put("note", field.getValue());
             }
             if (field.getName().contains("Tank"))
             {
-                tank = field.getValue();
+                embedFieldValuesMap.put("tank", field.getValue());
             }
             if (field.getName().contains("Heal"))
             {
-                heal = field.getValue();
+                embedFieldValuesMap.put("heal", field.getValue());
             }
             if (field.getName().contains("Damage"))
             {
-                damage = field.getValue();
+                embedFieldValuesMap.put("damage", field.getValue());
             }
         }
-
-        if (event.getButton().getId().startsWith("tank")) 
-        {
-            if (tank.length() > 1)
-            {
-                if (tank.contains(event.getMember().getEffectiveName()))
-                {
-                    memberAlreadyAssigned = true;
-                }
-                tank += "\n";
-            } 
-            tank += "<:green_check_mark:1044559541037183016>" + event.getMember().getEffectiveName();
-        } 
-        else if (event.getButton().getId().startsWith("heal")) 
-        {
-            if (heal.length() > 1)
-            {
-                if (heal.contains(event.getMember().getEffectiveName()))
-                {
-                    memberAlreadyAssigned = true;
-                }
-                heal += "\n";
-            }
-            heal += "<:green_check_mark:1044559541037183016>" + event.getMember().getEffectiveName();
-        }
-        else if (event.getButton().getId().startsWith("damage"))  
-        {
-            if (damage.length() > 1)
-            {
-                if (damage.contains(event.getMember().getEffectiveName()))
-                {
-                    memberAlreadyAssigned = true;
-                }
-                damage += "\n";
-            }
-            damage += "<:green_check_mark:1044559541037183016>" + event.getMember().getEffectiveName();
-        }
-
-        if (!memberAlreadyAssigned)
-        {
-            EmbedBuilder blueprint = new EmbedBuilder();
-                blueprint.setColor(0xa8d5fe)
-                    .setTitle(embed.getTitle())
-                    .setThumbnail("https://cdn.discordapp.com/attachments/1040718388802105474/1044369536285147286/Mplus.PNG")
-                    .setDescription(embed.getDescription())
-                    .addBlankField(false)
-                    .addField("<:tank:1044364540453867601> Tank", tank, true)
-                    .addField("<:heal:1044364577921568828> Heal", heal, true)
-                    .addField("<:damage:1044364596649144452> Damage", damage, true)
-                    .addBlankField(false)
-                    .addField("Special requests and notes", note, false);
-                
-            event.editMessageEmbeds(blueprint.build()).queue();
-        } 
-        else
-        {
-            event.reply("You are already assigned to this event").setEphemeral(true).queue();
-        }
-
+        return embedFieldValuesMap;
     }
 }
